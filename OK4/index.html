@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#853a2c"><title>城西尋影｜街區歷史集章</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
+<style>
+:root{--wine:#853a2c;--wine2:#a2684f;--cream:#f2e9d8;--paper:#faf4e8;--ink:#3a322a;--muted:#857665;--line:#cdbda3;--serif:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;--sans:system-ui,-apple-system,"Noto Sans TC",sans-serif}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:#dfd2bd;color:var(--ink);font-family:var(--sans)}button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #ac9374;outline-offset:3px}.app{height:100dvh;max-width:510px;margin:auto;background:var(--cream);display:flex;flex-direction:column;overflow:hidden;position:relative;box-shadow:0 0 38px #27190f22}.top{flex:none;background:var(--wine);color:#fff4e4;padding:13px 20px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{font:600 25px var(--serif);letter-spacing:.13em}.subtitle{font:10px var(--sans);letter-spacing:.13em;margin-top:2px;color:#edcbb6}.progress{font:12px var(--serif);border:1px solid #e0bfb7;padding:9px 10px;white-space:nowrap}.timeline{flex:none;background:#f7efdf;border-bottom:1px solid var(--line);padding:12px 14px 6px}.time-label{font:600 11px var(--sans);letter-spacing:.15em;color:var(--wine);padding:0 6px 9px}.time-scroll{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 5px 12px;position:relative;gap:0}.time-scroll::-webkit-scrollbar{display:none}.time-scroll:before{content:"";height:2px;position:absolute;top:12px;left:20px;right:20px;background:#baa68d}.epoch{z-index:1;min-width:74px;flex:1;border:0;background:transparent;padding:0 0 0;text-align:center;color:#786756}.epoch i{display:block;width:13px;height:13px;border-radius:50%;border:2px solid #9d856b;background:#f8efdf;margin:6px auto 12px;box-shadow:0 0 0 3px #f7efdf}.epoch b{font:600 13px var(--serif);white-space:nowrap}.epoch.active i{background:var(--wine);border-color:var(--wine);box-shadow:0 0 0 5px #efdcd0}.epoch.active b{color:var(--wine)}
+.map-frame{padding:12px 14px 14px;flex:1;min-height:0;display:flex;flex-direction:column}.map-paper{background:var(--paper);border:1px solid #d5c2a1;border-radius:23px;box-shadow:0 5px 24px #3a250f14;padding:10px 10px 9px;flex:1;min-height:0;display:flex;flex-direction:column}.map-heading{padding:4px 5px 11px;display:flex;align-items:center;gap:10px;justify-content:space-between}.map-heading h2{font:600 16px var(--serif);margin:0}.map-heading small{font:11px var(--sans);color:var(--muted);display:block;margin-top:3px}.locate{border:1px solid #b79c7f;background:#fffaf1;color:var(--wine);border-radius:14px;padding:9px 11px;white-space:nowrap;font-size:12px}.map-viewport{position:relative;flex:1;min-height:240px;border-radius:14px;overflow:hidden;border:1px solid #e2d3bc}#map{height:100%;width:100%;background:#eee6d9}.leaflet-container{font-family:var(--sans)}.leaflet-control-zoom{box-shadow:0 3px 12px #2d1a0920!important;border:none!important}.leaflet-control-zoom a{color:var(--wine)!important;background:#fffaf1!important}.map-note{padding:9px 4px 0;font-size:11px;color:#857665;display:flex;justify-content:space-between;gap:6px}.photo-marker{width:40px;height:40px;background:#fdf9ef;border:2px solid #fff6e7;border-radius:50%;box-shadow:0 2px 8px #21160a55;overflow:hidden;position:relative}.photo-marker img{width:100%;height:100%;object-fit:cover;filter:sepia(.18);display:block}.photo-marker.fallback{display:grid;place-items:center;background:#e7d8bf;color:#80563a;font:18px var(--serif)}.photo-marker.visited{outline:3px solid #66806a}.photo-marker.active{outline:3px solid var(--wine)}.cluster-pin{width:46px;height:46px;background:#fff4e1;border:3px solid #9e6048;border-radius:50%;color:#74382a;box-shadow:0 3px 12px #301e1538;display:grid;place-items:center;font:700 16px var(--serif)}.cluster-pin small{font:9px var(--sans);display:block;margin-top:-5px}.map-error{position:absolute;z-index:600;left:12px;right:12px;top:12px;background:#fff9ee;border:1px solid #c9b08d;border-radius:12px;padding:12px;color:#5f4e3e;font:12px/1.65 var(--sans);display:none}
+.bottom-shade{position:absolute;inset:0;background:#241a1350;z-index:700;opacity:0;pointer-events:none;transition:opacity .23s}.bottom-shade.open{opacity:1;pointer-events:auto}.sheet{position:absolute;z-index:800;left:0;right:0;bottom:0;height:min(63dvh,570px);background:var(--paper);border-radius:24px 24px 0 0;transform:translateY(105%);transition:transform .25s ease;display:flex;flex-direction:column;box-shadow:0 -8px 28px #23130835;overflow:hidden}.sheet.open{transform:translateY(0)}.handle{width:45px;height:4px;border-radius:10px;background:#c3b198;margin:11px auto 8px;flex:none}.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:0 16px 9px;flex:none}.sheet-heading small{color:var(--wine);letter-spacing:.14em;font:11px var(--sans)}.sheet-heading h2{font:600 23px/1.35 var(--serif);margin:3px 0 0}.x{width:36px;height:36px;border:1px solid #d4c5ad;border-radius:50%;background:#fff9ef;font-size:23px;color:var(--wine)}.sheet-scroll{min-height:0;overflow:auto;flex:1;padding:0 16px 18px;overscroll-behavior:contain}.photo-wrap{position:relative;background:#e5d7c3;border:1px solid #d9c5a7;border-radius:7px;overflow:hidden}.photo-wrap img{width:100%;height:auto;aspect-ratio:2.2;object-fit:contain;display:block}.photo-label{font:11px var(--serif);color:#857464;padding:7px 1px}.no-photo{padding:36px 12px;text-align:center;color:#816f5f;font:14px var(--serif)}.story{font:14px/1.8 var(--serif);color:#584b3f;margin:6px 0}.now{font:12px var(--sans);color:#796d60;margin:0 0 10px}.actions{display:grid;grid-template-columns:1.2fr 1fr;gap:9px;padding:12px 16px calc(16px + env(safe-area-inset-bottom));border-top:1px solid #e0d1b9;background:#faf4e8;flex:none}.btn{border:1px solid #bca186;background:#fff8ec;color:#5c4136;border-radius:10px;font-weight:700;padding:11px 8px;min-height:48px}.btn.primary{background:var(--wine);color:white;border-color:var(--wine)}.btn:disabled{opacity:.5}.details{display:flex;gap:13px;flex-wrap:wrap;padding-top:10px}.details a{font-size:12px;color:var(--wine);text-decoration:underline;text-underline-offset:3px}.state{font:12px var(--sans);color:var(--wine);padding:7px 0 0}.dialog{position:absolute;inset:0;z-index:1200;background:#24191575;display:none;align-items:center;justify-content:center;padding:25px}.dialog.open{display:flex}.dialog-card{background:#fff8ed;padding:24px 20px;border:1px solid #d6bd9b;border-radius:20px;box-shadow:0 10px 40px #100b0740;max-width:360px;width:100%}.dialog-card h3{font:600 24px var(--serif);color:var(--wine);margin:0 0 9px}.dialog-card p{font:14px/1.8 var(--serif);color:#655548}.dialog-actions{display:flex;gap:8px;margin-top:16px}.dialog-actions button{flex:1}.video-overlay{position:absolute;inset:0;z-index:1250;background:#170f0bec;display:none;align-items:center;justify-content:center;padding:16px}.video-overlay.open{display:flex}.video-overlay video{width:100%;max-height:70vh}.video-overlay .close-video{position:absolute;right:16px;top:20px;color:white;border:1px solid #ffffff99;background:none;border-radius:50%;font-size:26px;width:40px;height:40px}
+@media(max-width:360px){.brand{font-size:21px}.epoch{min-width:67px}.sheet-heading h2{font-size:21px}.map-heading h2{font-size:14px}}
+@media (prefers-reduced-motion:reduce){.sheet,.bottom-shade{transition:none}}
+
+/* V12: accessible uncluttered sheet, story and primary actions visible immediately */
+.map-frame{position:relative;z-index:1;isolation:isolate}
+.timeline{position:relative;z-index:2;padding:9px 14px 3px}
+.top{position:relative;z-index:3;padding-top:11px;padding-bottom:10px}
+.sheet{position:absolute;z-index:5000;top:auto;bottom:0;height:min(75dvh,690px);min-height:475px;border-radius:26px 26px 0 0;background:#fff8ed;box-shadow:0 -9px 34px #2d1c1440}
+.bottom-shade{z-index:4500;background:#1d140b23}
+.handle{margin:8px auto 7px}
+.sheet-head{padding:2px 19px 10px;gap:10px}
+.sheet-heading small{font-size:10px;letter-spacing:.1em}
+.sheet-heading h2{font-size:24px;line-height:1.25;margin-top:4px}
+.x{width:42px;height:42px;flex:none}
+.actions{order:0;flex:none;position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 19px 12px;border-top:1px solid #eadbc7;border-bottom:1px solid #eadbc7;background:#fff4e5}
+.actions .btn{min-height:55px;font-size:16px;letter-spacing:.03em;box-shadow:0 2px 5px #38251312}
+.sheet-scroll{order:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:15px 19px calc(18px + env(safe-area-inset-bottom))}
+.photo-wrap{min-height:130px;border-radius:11px;line-height:0;background:#e7d8c1}
+.photo-wrap img{display:block;width:100%;height:auto;max-height:38dvh;aspect-ratio:auto;object-fit:contain}
+.photo-label{font-size:10px;padding:7px 1px 3px}
+.story{font:13px/1.8 var(--serif);margin:8px 0 2px}
+.now{font-size:11px;margin:3px 0 8px}
+.state{font-size:11px;padding:6px 0 2px}
+.details{padding:8px 0 0}
+.photo-marker{width:30px;height:30px;border-width:2px;box-shadow:0 2px 6px #21160a40}
+.photo-marker img{width:100%;height:100%;object-fit:cover}
+.photo-marker.fallback{font-size:15px}
+.map-paper{box-shadow:0 4px 18px #35241714}
+/* keep functional map controls below the bottom sheet */
+.leaflet-top,.leaflet-bottom{z-index:600!important}
+@media(max-height:730px){.sheet{height:80dvh;min-height:405px}.sheet-scroll{padding-top:11px}.photo-wrap img{max-height:30dvh}}
+
+/* V13: 昭和城市廣告與紙本集章簿；避免細明體 */
+.dialog{z-index:9500}.video-overlay{z-index:9700}
+:root{--serif:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;--sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
+.brand{font-family:var(--sans);font-weight:850;letter-spacing:.15em;font-size:23px}
+.sheet-heading h2{font-family:var(--sans);font-weight:850;letter-spacing:.065em;font-size:24px}
+.map-heading h2,.time-label,.epoch b{font-family:var(--sans);font-weight:750}
+.sheet-heading small,.time-label{font-weight:750}
+.story{font:400 12px/1.85 var(--sans);color:#5d5146}
+.now{font:400 11px/1.6 var(--sans)}
+.progress{font:700 12px/1.45 var(--sans);background:#fffaef17;color:#fff6e9;text-align:center;min-width:104px;border-radius:5px;cursor:pointer;padding:6px 8px}
+.progress span{font-size:11px;color:#f5dfbd;letter-spacing:.05em}
+.actions{grid-template-columns:1fr 1fr}
+.actions .btn{min-height:51px;font:750 14px/1.4 var(--sans)}
+.state.distance-card{background:#eee2ce;border:1px solid #dac5a5;border-radius:10px;padding:10px 12px;margin:6px 0 8px;font:600 13px/1.6 var(--sans);color:#634332}
+.distance-card strong{display:block;font-size:17px;letter-spacing:.025em;color:#753d30}
+.distance-card small{display:block;font-size:10px;font-weight:400;color:#817063}
+.passport-overlay{display:none;position:absolute;inset:0;z-index:9400;background:#2f251db3;align-items:center;justify-content:center;padding:16px}
+.passport-overlay.open{display:flex}
+.passport-paper{width:min(100%,440px);max-height:calc(100dvh - 32px);overflow:auto;border:2px solid #b99b77;border-radius:15px;padding:17px;background:#f7eddb;box-shadow:0 14px 35px #0005}
+.passport-head{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid #c6b39b;padding-bottom:12px}
+.passport-head small{font:700 10px var(--sans);letter-spacing:.2em;color:#8b5e44}
+.passport-head h2{margin:4px 0;font:850 25px var(--sans);letter-spacing:.15em;color:#7c332b}
+.passport-head p{font:600 12px var(--sans);margin:3px 0;color:#65574c}
+#closePassport{border:1px solid #c8ae8f;background:#fffaef;border-radius:50%;font-size:24px;width:40px;height:40px;color:#7c332b}
+.stamp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}
+.stamp-cell{min-height:116px;position:relative;border:1px solid #cbb89f;border-radius:8px;background:#fffaf0;padding:11px 8px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.stamp-cell b{font:750 12px/1.5 var(--sans);color:#3c312a}.stamp-cell small{font-size:10px;color:#8d806e}
+.stamp-cell .imprint{position:absolute;top:38px;right:13px;width:65px;height:65px;border:3px double #8b382d;border-radius:50%;transform:rotate(-17deg);display:grid;place-content:center;text-align:center;color:#8b382d;background:#fef8ec5f;font:850 15px/1.15 var(--sans);letter-spacing:.12em}
+.stamp-cell .imprint em{font:700 9px var(--sans);font-style:normal;letter-spacing:0}
+.stamp-cell:not(.stamped) .imprint{border-color:#c9bdb0;color:#c3b7a9;opacity:.7;transform:none}
+.passport-note{font:11px/1.8 var(--sans);color:#7b6c5d;margin:0}
+@media(max-height:740px){.sheet{height:min(77dvh,570px)}.sheet-scroll{padding-top:8px}.photo-wrap img{max-height:32dvh}}
+
+/* V14：放映機膠卷圖記 + 乾淨的街圖對比，保留真的路網 */
+.top{padding:11px 15px 10px;background:#74372d;gap:8px}.brand-lockup{display:flex;align-items:center;gap:11px;min-width:0}.identity-mark{flex:none;color:#f3e1bd;width:49px;height:49px;display:grid;place-items:center}.identity-mark svg{width:49px;height:49px}.brand{font-family:var(--sans);font-size:23px;letter-spacing:.22em;font-weight:900;line-height:1.2;white-space:nowrap}.subtitle{font-family:var(--sans);font-size:10px;letter-spacing:.11em;margin-top:5px;white-space:nowrap;color:#f2d3af}.progress{min-width:95px;font-size:12px;background:#ffffff16;border:1px solid #e1bba2;border-radius:9px;line-height:1.45;padding:6px 9px;color:#ffebd3}
+.map-paper{border:2px solid #d2b99a;background:#f9f2e4}.map-viewport{border:1px solid #d3bfa7;isolation:isolate}.leaflet-tile-pane img{filter:grayscale(.4) sepia(.14) saturate(.75) contrast(.84) brightness(1.06)}.leaflet-overlay-pane{pointer-events:none}.leaflet-marker-pane{filter:none}.leaflet-control-container{filter:none}
+.photo-marker{width:46px;height:46px;border:4px solid #fffcf5;border-radius:50%;box-shadow:0 0 0 3px #79483c,0 5px 14px #2d211d55;background:#efe0ca;overflow:visible;position:relative;isolation:isolate}
+.photo-marker:after{content:'';position:absolute;z-index:-1;left:11px;bottom:-10px;width:13px;height:13px;background:#79483c;transform:rotate(45deg);border-radius:0 0 3px 0}
+.photo-marker img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;border-radius:50%;filter:sepia(.24) contrast(1.17)}
+.photo-marker.fallback{display:grid;place-items:center;color:#764c36;font-weight:900;background:#ead8b8;font-size:18px}
+.photo-marker.active{outline:3px solid #f4ca78;outline-offset:4px}.photo-marker.visited{box-shadow:0 0 0 3px #547257,0 5px 14px #2d211d55}.photo-marker.visited:after{background:#547257}
+.marker-check{position:absolute;right:-13px;top:-13px;background:#547257;border:2px solid #fff8ec;color:white;width:25px;height:25px;border-radius:50%;display:grid;place-items:center;font:900 16px/1 var(--sans);z-index:4;box-shadow:0 2px 7px #1c2a2040}
+/* Icons remain visibly larger than street symbols without covering place names */
+.sheet-heading h2{letter-spacing:.045em}.sheet{height:min(75dvh,690px)}.actions .btn{font-size:15px}.btn:not(.primary){background:#f3eadb}.map-heading small{letter-spacing:.02em}
+@media(max-width:370px){.identity-mark,.identity-mark svg{width:41px;height:41px}.brand{font-size:20px;letter-spacing:.13em}.subtitle{font-size:9px}.progress{min-width:82px;font-size:11px}}
+
+/* V17：回到較安靜的古早色調，保留 V14 穩定的地圖實例 */
+:root {--serif:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;--sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
+.app{max-width:510px;background:#f8f3ec}
+.top{background:#713329;padding:13px 18px 12px;min-height:72px}
+.brand-lockup{display:block;flex:1;min-width:0}
+.brand{font-size:23px;letter-spacing:.13em;font-weight:800;line-height:1.2;color:#f8ecdb}
+.subtitle{margin-top:6px;font-size:9px;letter-spacing:.17em;color:#e9cfba;white-space:nowrap}
+.header-tools{display:flex;align-items:center;gap:9px;flex:none}
+.help-reel{border:0;background:transparent;padding:4px;display:grid;place-items:center;width:39px;height:42px;color:#efd9c3;flex:none}
+.help-reel svg{display:block}
+.progress{padding:5px 8px;min-width:88px;font-size:11px;color:#fff2e2;border:1px solid #ceb19b;border-radius:5px;letter-spacing:.01em}
+.progress span{font-size:11px;color:#efd5bd}
+.timeline{padding:9px 14px 4px;background:#f5ede2;border-bottom:1px solid #e2d1bd}
+.time-label{font-size:11px;letter-spacing:.10em;margin-bottom:7px;padding:0 4px 5px;color:#804638}
+.era-bands{display:grid;grid-template-columns:1fr 1.2fr 1.2fr;gap:0;min-height:31px;border:1px solid #e4d2bc;background:#f8efe4;border-radius:10px;overflow:hidden}
+.era-bands span{font-size:11px;color:#794936;display:flex;align-items:center;justify-content:center;font-weight:750;letter-spacing:.07em;border-right:1px solid #d5b79f}
+.era-bands span:last-child{border-right:0}
+.time-scroll{padding:5px 4px 6px;gap:0;align-items:center;min-height:43px}
+.time-scroll:before{top:15px;height:2px;left:16px;right:16px;background:#b89b83}
+.epoch{min-width:59px;flex:1}
+.epoch i{height:12px;width:12px;margin:8px auto 7px;border:2px solid #b9937e;background:#f7efe7;box-shadow:0 0 0 4px #f5ede2}
+.epoch b{font-size:11px;letter-spacing:.01em;color:#6c5143;font-weight:650}
+.epoch.active i{background:#884635;border-color:#884635;box-shadow:0 0 0 4px #efdcd0}
+.epoch.active b{color:#873c2c}
+.map-frame{padding:9px 13px 12px;flex:1;min-height:0}
+.map-paper{padding:8px;border-radius:21px;background:#fbf7f0;border:1px solid #d8c3aa;box-shadow:0 4px 18px #35241714}
+.map-viewport{min-height:240px;position:relative;border-radius:16px;border:1px solid #d8c3aa;overflow:hidden}
+#map{height:100%;width:100%;background:#e7dfd4}
+.leaflet-control-zoom{margin:12px 0 0 12px!important}
+.leaflet-control-zoom a{width:37px!important;height:37px!important;line-height:35px!important;font-size:25px!important}
+.locate{position:absolute;right:12px;bottom:12px;z-index:650;border:1px solid #dcc8af;border-radius:50%;width:57px;height:57px;padding:0;display:grid;place-items:center;background:#fffcf7;box-shadow:0 5px 15px #4f342744;color:#874534;font-size:0;white-space:normal}
+.locate svg{width:34px;height:34px}
+/* No zoom button crosses the story sheet */
+.sheet,.bottom-shade{z-index:5000}.sheet{height:min(72dvh,650px)}
+.help-overlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:#2b1a14a6;z-index:9450}
+.help-overlay.open{display:flex}
+.help-paper{background:#fbf3e7;border:1px solid #c7ac8f;border-radius:15px;padding:18px;width:min(100%,410px);box-shadow:0 15px 32px #0003}
+.help-top{display:flex;gap:12px;align-items:center;justify-content:space-between}
+.help-top h2{margin:0;color:#713329;font-size:19px;font-weight:800;letter-spacing:.04em}
+.help-paper p{font-size:13px;line-height:1.9;color:#594b41;margin:14px 0}
+.help-paper .btn{width:100%;margin-top:4px}
+@media(max-width:370px){.brand{font-size:20px}.subtitle{font-size:8px}.header-tools{gap:3px}.help-reel{width:34px}.progress{min-width:80px;padding:4px 6px}.top{padding-left:12px;padding-right:12px}.map-frame{padding-left:10px;padding-right:10px}}
+
+/* V18 — user-supplied archival paper background: replace only bk.jpg to change it */
+html,body{background:#eee4d3 url('bk.jpg') center top/cover fixed no-repeat}
+.app{background:#f8f3e9 url('bk.jpg') center top/100% auto no-repeat}
+.timeline{background:rgba(249,242,229,.78)}
+.era-bands{background:rgba(252,244,231,.83)}
+.epoch i{box-shadow:0 0 0 4px #f6eee2}
+.map-paper{background:rgba(252,248,240,.87)}
+.sheet{background:#fbf6eb url('bk.jpg') center top/100% auto no-repeat}
+.help-paper,.passport-paper{background:#faf2e4 url('bk.jpg') center top/100% auto no-repeat}
+/* Pin's photograph is cropped by an INNER circular viewport; tail and completion badge remain outside */
+.photo-marker{width:46px!important;height:46px!important;position:relative!important;overflow:visible!important;border:0!important;background:transparent!important;box-shadow:none!important;isolation:auto!important;border-radius:0!important}
+.photo-marker:after{display:none!important}
+.photo-marker .pin-photo{position:absolute;inset:0;width:46px;height:46px;border-radius:50%;overflow:hidden;display:block;background:#e9d8c0;border:4px solid #fffaf1;box-shadow:0 0 0 2px #754637,0 4px 11px rgba(38,24,14,.32);z-index:2}
+.photo-marker .pin-photo img{display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;min-width:0!important;min-height:0!important;object-fit:cover!important;object-position:center!important;border-radius:0!important;margin:0!important;padding:0!important;filter:sepia(.18) contrast(1.06)}
+.photo-marker .pin-photo.pin-fallback{display:flex;align-items:center;justify-content:center;font:800 15px var(--sans);color:#86513d}
+.photo-marker .pin-tail{position:absolute;left:16px;top:39px;width:14px;height:15px;background:#754637;transform:rotate(45deg);border-radius:0 0 3px 0;z-index:1}
+.photo-marker .marker-check{right:-10px;top:-10px;z-index:4}
+.photo-marker.active .pin-photo{box-shadow:0 0 0 3px #d09a68,0 4px 11px rgba(38,24,14,.32)}
+.photo-marker.visited .pin-photo{box-shadow:0 0 0 3px #547257,0 4px 11px rgba(38,24,14,.32)}
+.photo-marker.visited .pin-tail{background:#547257}
+.help-reel{border-radius:50%;touch-action:manipulation}
+.help-reel:hover,.help-reel:focus-visible{background:rgba(255,255,255,.10)}
+
+</style></head><body>
+<div class="app">
+<header class="top"><div class="brand-lockup"><div class="brand">城西尋影</div><div class="subtitle">OLD TAIPEI · LOST FRAMES</div></div><div class="header-tools"><button id="helpReel" class="help-reel" type="button" aria-label="開啟遊戲說明" title="遊戲說明"><svg viewBox="0 0 40 40" width="34" height="34" aria-hidden="true"><circle cx="20" cy="20" r="16" stroke="currentColor" stroke-width="2.2" fill="none"/><circle cx="20" cy="20" r="3.4" fill="currentColor"/><path d="M20 16.5V4 M23 22L34 30.1 M17 22L6 30.1" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" fill="none"/></svg></button><button type="button" class="progress" id="progress" aria-label="開啟集章簿">集章簿　0／8<br><span id="score">0 分</span></button></div></header>
+<section class="timeline"><div class="time-label">歷史時間軸</div><div class="era-bands" aria-label="歷史時期"><span>清代</span><span>日治時期</span><span>民國時期</span></div><div id="timeline" class="time-scroll" aria-label="選擇歷史年代"></div></section>
+<section class="map-frame"><div class="map-paper"><div class="map-viewport"><div id="map" aria-label="萬華真實街道地圖"></div><button class="locate" id="locate" type="button" aria-label="定位到我的位置"><svg viewBox="0 0 48 48" width="40" height="40" aria-hidden="true"><circle cx="24" cy="24" r="16" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M24 2v11M24 35v11M2 24h11M35 24h11" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="24" cy="24" r="4.2" fill="currentColor"/></svg></button><div class="map-error" id="mapError">街道底圖暫時無法載入。請確認網路連線；你仍可點選歷史圖記查看內容，並使用外部步行導航。</div></div></div></section>
+<div class="bottom-shade" id="shade"></div>
+<section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="歷史地點故事"><div class="handle"></div><div class="sheet-head"><div class="sheet-heading"><small id="sheetEra">歷史影像</small><h2 id="sheetTitle">歷史景點</h2></div><button type="button" class="x" id="closeSheet" aria-label="關閉故事">×</button></div><div class="actions"><button type="button" class="btn primary" id="navigation">↗ 步行導航</button><button type="button" class="btn" id="checkin">◉ 到點打卡</button></div><div class="sheet-scroll"><div id="photoBox" class="photo-wrap"></div><div id="photoLabel" class="photo-label"></div><p class="now" id="sheetNow"></p><p class="story" id="sheetStory"></p><div class="distance-card" id="sheetState" aria-live="polite"></div><div class="details"><a href="#" id="archive" target="_blank" rel="noopener">查看北市圖館藏</a><a href="#" id="playLink" style="display:none">看動圖</a></div></div></section>
+<div class="dialog" id="dialog" role="dialog" aria-modal="true"><div class="dialog-card"><h3 id="dialogTitle"></h3><p id="dialogText"></p><div class="dialog-actions"><button type="button" class="btn" id="dialogCancel">稍後</button><button type="button" class="btn primary" id="dialogConfirm">繼續</button></div></div></div>
+<section class="help-overlay" id="helpOverlay" role="dialog" aria-modal="true" aria-label="遊戲說明"><div class="help-paper"><div class="help-top"><h2>城西尋影 · 遊戲說明</h2><button type="button" class="x" id="closeHelp" aria-label="關閉遊戲說明">×</button></div><p>在地圖上點選一處歷史照片標記，閱讀老照片與故事，再按「步行導航」前往現場。</p><p>抵達後按「到點打卡」，同意 GPS 定位並確認抵達，就能在集章簿蓋章、獲得 100 分。集滿 8 景共 800 分。</p><p>定位僅在你主動操作時使用；未開啟定位也能瀏覽照片和故事。</p><button type="button" id="helpStart" class="btn primary">開始尋影</button></div></section>
+<section class="passport-overlay" id="passportOverlay" role="dialog" aria-modal="true" aria-label="集章簿"><div class="passport-paper"><div class="passport-head"><div><small>COLLECTION BOOK</small><h2>城西集章簿</h2><p id="passportSummary">0 / 8 景 · 0 分</p></div><button type="button" id="closePassport" aria-label="關閉集章簿">×</button></div><div class="stamp-grid" id="stampGrid"></div><p class="passport-note">到現場點選「到點打卡」，每景得 100 分。章與分數儲存在目前瀏覽器。</p></div></section><div class="video-overlay" id="videoOverlay"><button type="button" class="close-video" id="closeVideo" aria-label="關閉影片">×</button><video id="vid" playsinline controls preload="none"></video></div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
+<script>
+(()=>{'use strict';
+const sites=[
+{id:'ximen-redhouse',name:'新起街市場',era:'1920年代',year:1920,lat:25.0420652,lng:121.5069348,radius:75,now:'今・西門紅樓',img:'images/ximen-redhouse.jpg',thumb:'images/thumbs/ximen-redhouse.webp',archive:'https://archive.tpml.edu.tw/TaipeiLib/wSite/ct?xItem=0&dataId=6506&ctNode=404&mp=3',story:'現在的西門紅樓，最初曾是一座市場。走近建築，看看百年前商業生活留下了什麼痕跡。'},
+{id:'nishi-honganji',name:'西本願寺本堂',era:'1930年代',year:1930,lat:25.04006,lng:121.50690,radius:80,now:'今・西本願寺廣場／臺北市立文獻館',img:'images/nishi-honganji.jpg',thumb:'images/thumbs/nishi-honganji.webp',archive:'https://archive.tpml.edu.tw/TaipeiLib/wSite/ct?xItem=0&dataId=6617&ctNode=404&mp=3',story:'昔日的西本願寺本堂已不復存在。走到文獻館附近，試著想像當年寺院曾經佔據的街區空間。'},
+{id:'new-world-cinema',name:'新世界大戲院',era:'1950年代',year:1950,lat:25.04176,lng:121.50717,radius:75,now:'今・漢中街116號一帶',img:'images/new-world-cinema.jpg',thumb:'images/thumbs/new-world-cinema.webp',archive:'https://archive.tpml.edu.tw/TaipeiLib/wSite/ct?xItem=0&dataId=6507&ctNode=404&mp=3',story:'看電影曾經是西門町最重要的娛樂之一。在今日街頭尋找那座老戲院的身影，想像散場時熱鬧的人潮。'},
+{id:'longshan-temple',name:'艋舺龍山寺',era:'1950年代',year:1950,lat:25.03732,lng:121.49987,radius:90,now:'今・龍山寺前廣場',img:null,thumb:null,archive:'https://archive.tpml.edu.tw/TaipeiLib/wSite/ct?xItem=0&dataId=6624&ctNode=404&mp=3',story:'曾經的龍山寺前有人力車與街頭生活。今天的廣場仍是萬華重要的聚會場所，試著比較兩個時代的氣氛。'},
+{id:'zhonghua-market',name:'中華商場',era:'1960年代',year:1960,lat:25.04408,lng:121.50603,radius:90,now:'今・中華路一段（GPS 位置待現勘）',img:'images/zhonghua-market.jpg',thumb:'images/thumbs/zhonghua-market.webp',archive:'https://archive.tpml.edu.tw/TaipeiLib/wSite/ct?xItem=0&dataId=6494&ctNode=404&mp=3',story:'過去中華商場曾沿著中華路綿延排列，如今建築已消失。這是城市變遷最鮮明的例子之一。'},
+{id:'zhongshan-hall',name:'中山堂',era:'1970年',year:1970,lat:25.04348,lng:121.50957,radius:85,now:'今・延平南路98號',img:'images/zhongshan-hall.jpg',thumb:'images/thumbs/zhongshan-hall.webp',archive:'https://archive.tpml.edu.tw/TaipeiLib/wSite/ct?xItem=0&dataId=4007&ctNode=404&mp=3',story:'中山堂見證臺北公共生活的變化。從 1970 年的照片，再看看今日同一棟建築。'},
+{id:'today-department',name:'今日百貨',era:'1986年',year:1986,lat:25.04368,lng:121.50537,radius:80,now:'今・峨眉街52號一帶',img:'images/today-department.jpg',thumb:'images/thumbs/today-department.webp',video:'videos/today-department.mp4',archive:'https://archive.tpml.edu.tw/TaipeiLib/wSite/ct?xItem=0&dataId=7230&ctNode=404&mp=3',story:'昔日今日百貨曾經是西門町購物記憶的一部分。走到現址，看看當年的街景與今天有何不同。'},
+{id:'bopiliao',name:'桂林路剝皮寮',era:'1994年',year:1994,lat:25.03808,lng:121.50260,radius:85,now:'今・剝皮寮歷史街區',img:null,thumb:null,archive:'https://archive.tpml.edu.tw/TaipeiLib/wSite/ct?xItem=0&dataId=680&ctNode=404&mp=3',story:'1990年代的剝皮寮仍保有街屋與店家日常。今天保存下來的街景，讓人重新思考老街與生活的關係。'}
+];
+const $=id=>document.getElementById(id);let selected=null, user=null, activePrompt=null;let done;try{done=new Set(JSON.parse(localStorage.getItem('cx_v11_done')||'[]'))}catch{done=new Set()}
+const timeline=$('timeline');const years=[...new Set(sites.map(s=>s.year))];years.forEach(y=>{const b=document.createElement('button');b.className='epoch';b.innerHTML=`<i></i><b>${y}</b>`;b.title=`${y}年代`;b.onclick=()=>{const site=sites.find(s=>s.year===y);if(!site)return;const i=sites.indexOf(site);select(i);};timeline.append(b)});
+function setEpoch(){[...timeline.children].forEach((b,i)=>b.classList.toggle('active',selected!==null&&years[i]===sites[selected].year));if(selected!==null){const ix=years.indexOf(sites[selected].year);timeline.children[ix].scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});}}
+const map=L.map('map',{zoomControl:true,preferCanvas:true,zoomSnap:1,zoomAnimation:true,markerZoomAnimation:false}).setView([25.0417,121.5054],15);
+const tile=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors',keepBuffer:4,updateWhenIdle:true});tile.addTo(map);
+let gotTile=false;tile.on('tileload',()=>{gotTile=true;$('mapError').style.display='none'});setTimeout(()=>{if(!gotTile)$('mapError').style.display='block'},7000);
+const layer=L.layerGroup().addTo(map);
+function ico(s,i){const visited=done.has(s.id),c=visited?' visited':'',a=selected===i?' active':'';const img=s.thumb?`<img src="${s.thumb}" alt="" draggable="false">`:'影';const badge=visited?'<span class="marker-check" aria-label="已尋回">✓</span>':'';return L.divIcon({html:`<div class="photo-marker${c+a}"><span class="pin-tail"></span><span class="pin-photo${s.thumb?'':' pin-fallback'}">${img}</span>${badge}</div>`,className:'',iconSize:[50,62],iconAnchor:[23,55]})}
+// Eight independently selectable image marks. No cluster or extra tap to expand.
+// Small marks leave room to touch neighbouring destinations at normal street zoom.
+function renderMarkers(){
+  layer.clearLayers();
+  sites.forEach((site,i)=>{
+    const marker=L.marker([site.lat,site.lng],{icon:ico(site,i),title:site.name,keyboard:true,zIndexOffset:selected===i?1000:0});
+    marker.on('click',()=>select(i));
+    layer.addLayer(marker);
+  });
+}
+renderMarkers();setTimeout(()=>map.invalidateSize(),150);
+function refreshProgress(){$('progress').innerHTML=`集章簿　${done.size}／${sites.length}<br><span id="score">${done.size*100} 分</span>`;renderMarkers();renderPassport()}
+function openSheet(){$('sheet').classList.add('open');$('shade').classList.add('open')};function closeSheet(){$('sheet').classList.remove('open');$('shade').classList.remove('open')};$('closeSheet').onclick=closeSheet;$('shade').onclick=closeSheet;
+function statusHtml(s){
+ if(done.has(s.id))return `<strong>✓ 已尋回 · 得 100 分</strong><small>地圖標記已打勾；集章簿已記錄</small>`;
+ if(!user)return `<strong>到點後按「到點打卡」</strong><small>將先詢問是否使用手機定位；看照片不需要 GPS</small>`;
+ const d=distance(user,s),metres=Math.round(d),mins=Math.max(1,Math.ceil(d*1.3/70));
+ return `<strong>距離約 ${metres>=1000?(d/1000).toFixed(1)+' 公里':metres+' 公尺'} · 粗估步行 ${mins} 分</strong><small>為直線距離換算，非實際路線；定位誤差約 ${Math.round(user.accuracy)} 公尺</small>`;
+}
+function updateStatus(){if(selected===null)return;const s=sites[selected];$('sheetState').innerHTML=statusHtml(s);$('checkin').textContent=done.has(s.id)?'✓ 已尋回':'◉ 到點打卡';$('checkin').disabled=done.has(s.id);$('playLink').style.display=(s.video&&done.has(s.id))?'inline':'none'}
+function select(i){selected=i;const s=sites[i];$('sheetEra').textContent=`${s.era} · 歷史片段 ${String(i+1).padStart(2,'0')} / 08`;$('sheetTitle').textContent=s.name;$('sheetNow').textContent=s.now;$('sheetStory').textContent=s.story;$('archive').href=s.archive;$('photoBox').replaceChildren();if(s.img){const im=new Image();im.src=s.img;im.decoding='async';im.alt=s.name+'歷史照片';$('photoBox').append(im)}else{$('photoBox').innerHTML='<div class="no-photo">館藏照片待補</div>'}$('photoLabel').textContent=s.img?'臺北市立圖書館數位典藏':'館藏原圖待提供';updateStatus();setEpoch();renderMarkers();openSheet()}
+function distance(a,b){const rad=x=>x*Math.PI/180, dlat=rad(a.lat-b.lat),dlng=rad(a.lng-b.lng),h=Math.sin(dlat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dlng/2)**2;return 6371000*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h))}
+function promptModal(title,text,confirm='確認',cancel='取消',fn=()=>{}){$('dialogTitle').textContent=title;$('dialogText').textContent=text;$('dialogConfirm').textContent=confirm;$('dialogCancel').textContent=cancel;activePrompt=fn;$('dialog').classList.add('open')}
+function closePrompt(){$('dialog').classList.remove('open');activePrompt=null};$('dialogCancel').onclick=closePrompt;$('dialogConfirm').onclick=()=>{const fn=activePrompt;closePrompt();if(fn)fn()};
+let userMarker=null,accuracyCircle=null;
+function updateUser(pos){const c=pos.coords;user={lat:c.latitude,lng:c.longitude,accuracy:c.accuracy};const ll=[user.lat,user.lng];if(!userMarker){userMarker=L.circleMarker(ll,{radius:8,color:'#fff',weight:3,fillColor:'#377dda',fillOpacity:1}).addTo(map);accuracyCircle=L.circle(ll,{radius:user.accuracy,color:'#5598ea',weight:1,fillColor:'#79b1f4',fillOpacity:.12}).addTo(map)}else{userMarker.setLatLng(ll);accuracyCircle.setLatLng(ll).setRadius(user.accuracy)}updateStatus()}
+function getPosition(callback){
+ if(!navigator.geolocation){promptModal('無法定位','此瀏覽器不支援手機定位，仍可查看照片與步行導航。','知道了','關閉');return}
+ if(!window.isSecureContext){promptModal('需要安全網址','請使用 HTTPS 網址開啟遊戲，才能取得手機 GPS。','知道了','關閉');return}
+ $('locate').setAttribute('aria-label','定位中');
+ navigator.geolocation.getCurrentPosition(pos=>{$('locate').setAttribute('aria-label','回到我的位置');updateUser(pos);callback?.(pos)},err=>{
+   $('locate').setAttribute('aria-label','定位到我的位置');
+   const reason=err.code===1?'位置權限已被拒絕，請在瀏覽器網站設定中允許位置後再試。':err.code===2?'目前抓不到位置，請移到較開闊的位置。':'定位等待逾時，請再試一次。';
+   promptModal('定位未成功',reason,'知道了','關閉')
+ },{enableHighAccuracy:true,maximumAge:3000,timeout:18000})
+}
+function stampNow(s){if(done.has(s.id))return;done.add(s.id);try{localStorage.setItem('cx_v11_done',JSON.stringify([...done]))}catch{}refreshProgress();updateStatus();promptModal('尋回成功！',`「${s.name}」已收進集章簿，獲得 100 分。地圖照片旁也已蓋上勾號。`,'查看集章簿','繼續探索',showPassport)}
+function verifyCheckin(pos){if(selected===null)return;const s=sites[selected];const fix={lat:pos.coords.latitude,lng:pos.coords.longitude,accuracy:pos.coords.accuracy};const d=distance(fix,s);
+ if(fix.accuracy>75){promptModal('定位精度不足',`目前 GPS 誤差約 ${Math.round(fix.accuracy)} 公尺，請到較開闊處再按一次「到點打卡」。`,'知道了','關閉');return}
+ if(d>s.radius){promptModal('還沒到喔',`目前距離「${s.name}」約 ${Math.round(d)} 公尺。抵達附近後再按「到點打卡」。`,'繼續尋找','關閉');return}
+ promptModal('到囉！',`你已進入「${s.name}」的打卡範圍。現在要蓋章收藏這段歷史嗎？`,'確認蓋章','稍後',()=>stampNow(s))
+}
+$('locate').onclick=()=>getPosition(pos=>map.panTo([pos.coords.latitude,pos.coords.longitude]));
+$('checkin').onclick=()=>{if(selected===null||done.has(sites[selected].id))return;promptModal('啟用 GPS 打卡？','我們只會在你按下打卡時取得一次位置，確認是否抵達這個歷史地點。','啟用並確認','暫不啟用',()=>getPosition(verifyCheckin))};
+function renderPassport(){
+ $('passportSummary').textContent=`已集 ${done.size}／${sites.length} 景 · ${done.size*100} 分`;
+ $('stampGrid').innerHTML=sites.map((s,i)=>`<div class="stamp-cell ${done.has(s.id)?'stamped':''}"><small>NO. ${String(i+1).padStart(2,'0')} · ${s.era}</small><b>${s.name}</b><div class="imprint">${done.has(s.id)?'尋回<em>＋100</em>':'未尋<em>　</em>'}</div></div>`).join('')
+}
+function showPassport(){renderPassport();$('passportOverlay').classList.add('open')}
+$('progress').onclick=showPassport;
+$('helpReel').onclick=()=> $('helpOverlay').classList.add('open');
+$('closeHelp').onclick=$('helpStart').onclick=()=> $('helpOverlay').classList.remove('open');
+$('helpOverlay').addEventListener('click',e=>{if(e.target===$('helpOverlay'))$('helpOverlay').classList.remove('open')});
+$('closePassport').onclick=()=>$('passportOverlay').classList.remove('open');
+$('passportOverlay').addEventListener('click',e=>{if(e.target===$('passportOverlay'))$('passportOverlay').classList.remove('open')});
+$('navigation').onclick=()=>{if(selected===null)return;const s=sites[selected];const url=`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}&travelmode=walking`;window.open(url,'_blank','noopener')};
+$('playLink').onclick=e=>{e.preventDefault();if(selected===null)return;const s=sites[selected];if(!s.video||!done.has(s.id))return;$('vid').src=s.video;$('videoOverlay').classList.add('open');$('vid').play().catch(()=>{})};$('closeVideo').onclick=()=>{$('vid').pause();$('videoOverlay').classList.remove('open')};
+refreshProgress();
+})();
+</script></body></html>
